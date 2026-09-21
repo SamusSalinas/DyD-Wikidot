@@ -1,35 +1,30 @@
 <?php
-// 1. Capturamos qué página quiere ver el usuario. Si no hay ninguna, cargamos 'inicio'.
 $pagina_solicitada = isset($_GET['page']) ? $_GET['page'] : 'inicio';
-
-// 2. Por seguridad, limpiamos la variable para evitar que alguien intente acceder a carpetas del servidor
-$pagina_segura = basename($pagina_solicitada);
-
-// 3. Definimos la ruta del archivo que queremos cargar
+$pagina_segura = str_replace(array('../', '..\\'), '', $pagina_solicitada);
 $ruta_archivo = "paginas/" . $pagina_segura . ".html";
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>D&D 5e Wiki - Sistema sin BD</title>
+    <title>D&D 5e Wiki</title>
+    <!-- Aquí vinculamos tu nuevo archivo estructural -->
+    <link rel="stylesheet" href="estructura.css">
 </head>
 <body>
 
-    <!-- Encabezado principal -->
-    <table width="100%" border="0" cellpadding="10" bgcolor="#eeeeee">
-        <tr>
-            <td>
-                <h1>Wiki de Dungeons & Dragons 5e</h1>
-            </td>
-        </tr>
-    </table>
+    <div class="contenedor-maestro">
+        
+        <!-- Encabezado principal -->
+        <header class="cabecera">
+            <h1>Wiki de Dungeons & Dragons 5e</h1>
+        </header>
 
-    <!-- Estructura de columnas usando tablas (alternativa a CSS) -->
-    <table width="100%" border="1" cellpadding="15" cellspacing="0">
-        <tr>
+        <!-- Cuerpo de dos columnas -->
+        <div class="cuerpo-pagina">
+            
             <!-- BARRA LATERAL (Menú de navegación) -->
-            <td width="20%" valign="top" bgcolor="#f9f9f9">
+            <nav class="columna-navegacion">
                 <h3>Navegación</h3>
                 <ul>
                     <li><a href="index.php?page=inicio">Página Principal</a></li>
@@ -37,38 +32,39 @@ $ruta_archivo = "paginas/" . $pagina_segura . ".html";
                 
                 <h3>Reglas de Creación</h3>
                 <ul>
-                    <li><a href="index.php?page=razas">Razas</a></li>
-                    <li><a href="index.php?page=clases">Clases</a></li>
-                    <li><a href="index.php?page=trasfondos">Trasfondos</a></li>
-                    <li><a href="index.php?page=dotes">Dotes</a></li>
+                    <li><a href="index.php?page=razas/inicio">Razas</a></li>
+                    <li><a href="index.php?page=clases/inicio">Clases</a></li> 
+                    <li><a href="index.php?page=trasfondos/inicio">Trasfondos</a></li>
+                    <li><a href="index.php?page=dotes/inicio">Dotes</a></li>
                 </ul>
 
                 <h3>Magia y Equipo</h3>
                 <ul>
-                    <li><a href="index.php?page=hechizos">Hechizos</a></li>
-                    <li><a href="index.php?page=armas">Armas y Armaduras</a></li>
+                    <li><a href="index.php?page=hechizos/inicio">Listas de Hechizos</a></li>
+                    <li><a href="index.php?page=objetos/inicio">Equipamiento (Armas, etc.)</a></li>
                     <li><a href="index.php?page=objetos_magicos">Objetos Mágicos</a></li>
                 </ul>
-            </td>
+            </nav>
 
             <!-- ÁREA DE CONTENIDO PRINCIPAL -->
-            <td width="80%" valign="top">
+            <main class="columna-contenido">
                 <?php
-                // 4. Verificamos si el archivo solicitado existe físicamente en la carpeta
                 if (file_exists($ruta_archivo)) {
-                    // Si existe, inyectamos su código HTML aquí
                     include($ruta_archivo);
-                } 
-                else {
-                        // Error 404 básico
+                } else {
+                    if ($pagina_segura === 'inicio') {
+                        echo "<h2>Bienvenido a la Wiki</h2>";
+                        echo "<p>Para comenzar, debes crear un archivo llamado <b>inicio.html</b> dentro de la carpeta <b>paginas/</b>.</p>";
+                    } else {
                         echo "<h2>Página no encontrada</h2>";
-                        echo "<p>La página <b>" . htmlspecialchars($pagina_segura) . "</b> no ha sido creada todavía.</p>";
-                        echo "<p>Crea el archivo <i>paginas/" . htmlspecialchars($pagina_segura) . ".html</i> para añadir este contenido.</p>";
+                        echo "<p>La página <b>" . htmlspecialchars($pagina_segura) . "</b> no ha sido generada todavía.</p>";
+                    }
                 }
                 ?>
-            </td>
-        </tr>
-    </table>
+            </main>
+
+        </div>
+    </div>
 
 </body>
 </html>

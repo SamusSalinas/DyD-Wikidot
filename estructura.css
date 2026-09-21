@@ -1,0 +1,47 @@
+* {
+    box-sizing: border-box;
+}
+
+
+.contenedor-maestro {
+    display: block;
+    max-width: 1200px;
+    margin: 0 auto; 
+    padding: 10px;
+}
+
+
+.cabecera {
+    margin-bottom: 20px;
+}
+
+
+.cuerpo-pagina {
+    display: grid;
+    
+    grid-template-columns: 250px 1fr; 
+    gap: 30px; 
+}
+
+
+.columna-navegacion {
+    display: block;
+}
+
+.columna-contenido {
+    display: block;
+}
+
+
+table {
+    width: 100%;
+    border-collapse: collapse; 
+    margin-top: 15px;
+    margin-bottom: 20px;
+}
+
+th, td {
+    text-align: left; 
+    padding: 10px;    
+}
+
