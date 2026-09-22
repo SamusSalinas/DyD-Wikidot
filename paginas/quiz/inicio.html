@@ -1,0 +1,442 @@
+<style>
+/* Estilos acotados a la columna principal */
+.columna-contenido {
+    font-family: serif;
+    background-color: #ffffff;
+    color: #000000;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+.columna-contenido h1 {
+    font-size: 1.5rem;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 5px;
+    margin-bottom: 15px;
+    width: 100%;
+    max-width: 1200px;
+}
+.columna-contenido .subtitle {
+    font-size: 0.85rem;
+    color: #555;
+    margin-bottom: 20px;
+}
+.columna-contenido .controls {
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+.columna-contenido button {
+    font-family: serif;
+    background: #f8f9fa;
+    color: #000;
+    border: 1px solid #a2a9b1;
+    padding: 4px 10px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+.columna-contenido button:hover { background: #e5edf5; }
+.columna-contenido button:disabled { opacity: 0.5; cursor: default; }
+
+/* Panel de preguntas fijo */
+#action-panel {
+    background: #f8f9fa;
+    border: 1px solid #a2a9b1;
+    padding: 12px 15px;
+    margin: 0 auto 15px auto;
+    max-width: 550px;
+    width: 100%;
+    box-sizing: border-box;
+}
+#action-question { font-weight: bold; margin-bottom: 10px; }
+.options-group {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.options-group button { background: #ffffff; border: 1px solid #72777d; }
+.finished-banner { font-weight: bold; color: #006600; margin-bottom: 5px; }
+
+/* Diagrama con scroll suave interno */
+#diagram-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 1200px;
+    height: 520px;
+    overflow: auto;
+    scroll-behavior: smooth; /* Hace que el scroll sea fluido */
+    border: 1px solid #e5e5e5;
+    padding: 10px 0;
+}
+#diagram-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 1200px;
+    position: relative;
+}
+.tree-level {
+    display: flex;
+    justify-content: center;
+    gap: 18px;
+    margin-bottom: 42px;
+    width: 100%;
+    padding: 0 10px;
+    box-sizing: border-box;
+}
+.node {
+    background: #ffffff;
+    color: #555555;
+    border: 1px dashed #ccc;
+    padding: 8px 10px;
+    font-size: 0.72rem;
+    text-align: center;
+    width: 125px;
+    min-height: 32px;
+    box-sizing: border-box;
+    z-index: 10;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+.node.active {
+    color: #000000;
+    border: 2px solid #000000;
+    font-weight: bold;
+}
+.node.visited {
+    background: #eef9ee;
+    color: #006600;
+    border: 1px solid #28a745;
+    font-weight: bold;
+}
+.node.class-node {
+    width: 85px;
+    padding: 5px;
+    font-size: 0.78rem;
+}
+svg.connections {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 1;
+    pointer-events: none;
+}
+path {
+    fill: none;
+    stroke: #cccccc;
+    stroke-width: 1.5;
+    stroke-dasharray: 2;
+}
+path.active-line {
+    stroke: #28a745;
+    stroke-width: 2.5;
+    stroke-dasharray: none;
+}
+#route {
+    font-size: 0.75rem;
+    color: #555;
+    max-width: 900px;
+    margin: 0 auto 20px;
+    line-height: 1.5;
+}
+</style>
+
+<h1>¿Qué clase de D&amp;D debes jugar?</h1>
+
+<div class="controls">
+    <button id="btn-back" onclick="goBack()" disabled>Volver atrás</button>
+    <button onclick="resetTree()">Reiniciar</button>
+</div>
+
+<div id="action-panel">
+    <div id="action-question">Cargando...</div>
+    <div id="action-options" class="options-group"></div>
+</div>
+
+<div id="route"></div>
+
+<div id="diagram-wrapper">
+<div id="diagram-container">
+<svg class="connections" id="svg-lines"></svg>
+<div class="tree-level">
+<div id="node-A1" class="node" data-key="A1">¿Quieres lanzar magia o romper cosas?</div>
+</div>
+<div class="tree-level">
+<div id="node-A2" class="node" data-key="A2">Lanzar magia</div>
+<div id="node-B1" class="node" data-key="B1">¿Puedo hacer ambas?</div>
+<div id="node-C1" class="node" data-key="C1">¡Yo rompo!</div>
+</div>
+<div class="tree-level">
+<div id="node-A3" class="node" data-key="A3">¿Eres religioso?</div>
+<div id="node-B2" class="node" data-key="B2">Claro</div>
+<div id="node-C2" class="node" data-key="C2">¿Cuerpo a cuerpo o a distancia?</div>
+</div>
+<div class="tree-level">
+<div id="node-A4" class="node" data-key="A4">No, no realmente</div>
+<div id="node-B3" class="node" data-key="B3">¿Te sientes comodo entre las personas?</div>
+<div id="node-C3" class="node" data-key="C3">Distancia</div>
+<div id="node-C7" class="node" data-key="C7">Cuerpo a cuerpo</div>
+</div>
+<div class="tree-level">
+<div id="node-A5" class="node" data-key="A5">¿Te gusta estudiar?</div>
+<div id="node-B4" class="node" data-key="B4">No mucho</div>
+<div id="node-B10" class="node" data-key="B10">Le caigo bien a las personas</div>
+<div id="node-C4" class="node" data-key="C4">¿Eres social?</div>
+<div id="node-C8" class="node" data-key="C8">¿Peleas por una causa?</div>
+</div>
+<div class="tree-level">
+<div id="node-A6" class="node" data-key="A6">Estudiar es para perdedores</div>
+<div id="node-A8" class="node" data-key="A8">Si, amo aprender</div>
+<div id="node-B5" class="node" data-key="B5">¿Te gustan los animales?</div>
+<div id="node-B7" class="node" data-key="B7">¿Eres furtivo?</div>
+<div id="node-C9" class="node" data-key="C9">¿El dinero es una causa?</div>
+<div id="node-C11" class="node" data-key="C11">Si, mis creencias me definen</div>
+</div>
+<div class="tree-level">
+<div id="node-A7" class="node" data-key="A7">¿Naciste con magia?</div>
+<div id="node-A9" class="node" data-key="A9">¿Interes en la música?</div>
+<div id="node-B6" class="node" data-key="B6">Meh</div>
+<div id="node-B9" class="node" data-key="B9">¿Prefieres magia que lucha?</div>
+<div id="node-C10" class="node" data-key="C10">¿Eres civilizado?</div>
+<div id="node-C12" class="node" data-key="C12">¿Sabes artes marciales?</div>
+</div>
+<div class="tree-level">
+<div id="node-A10" class="node" data-key="A10">En realidad no</div>
+<div id="node-C5" class="node" data-key="C5">La magia es un extra</div>
+<div id="node-C13" class="node" data-key="C13">Meh</div>
+</div>
+<div class="tree-level">
+<div id="node-A11" class="node" data-key="A11">¿De verdad no te gustan los animales?</div>
+<div id="node-C6" class="node" data-key="C6">¿Quieres ser rico?</div>
+</div>
+<div class="tree-level">
+<div id="node-A12" class="node" data-key="A12">Prefiero criaturas magicas</div>
+</div>
+<div class="tree-level">
+<div id="node-A13" class="node" data-key="A13">¿Quieres unir magia y ciencia?</div>
+</div>
+<div class="tree-level">
+<div id="node-CLASS-Clerigo" class="node class-node" data-key="CLASS:Clérigo">Clérigo</div>
+<div id="node-CLASS-Brujo" class="node class-node" data-key="CLASS:Brujo">Brujo</div>
+<div id="node-CLASS-Hechicero" class="node class-node" data-key="CLASS:Hechicero">Hechicero</div>
+<div id="node-CLASS-Mago" class="node class-node" data-key="CLASS:Mago">Mago</div>
+<div id="node-CLASS-Artifice" class="node class-node" data-key="CLASS:Artífice">Artífice</div>
+<div id="node-CLASS-Bardo" class="node class-node" data-key="CLASS:Bardo">Bardo</div>
+<div id="node-CLASS-Druida" class="node class-node" data-key="CLASS:Druida">Druida</div>
+<div id="node-CLASS-Picaro" class="node class-node" data-key="CLASS:Pícaro">Pícaro</div>
+<div id="node-CLASS-Guerrero" class="node class-node" data-key="CLASS:Guerrero">Guerrero</div>
+<div id="node-CLASS-Barbaro" class="node class-node" data-key="CLASS:Bárbaro">Bárbaro</div>
+<div id="node-CLASS-Monje" class="node class-node" data-key="CLASS:Monje">Monje</div>
+<div id="node-CLASS-Paladin" class="node class-node" data-key="CLASS:Paladín">Paladín</div>
+<div id="node-CLASS-Ranger" class="node class-node" data-key="CLASS:Ranger">Ranger</div>
+</div>
+
+</div>
+</div>
+
+<script>
+const DATA = {"labels": {"A1": "¿Quieres lanzar magia o romper cosas?", "A2": "Lanzar magia", "A3": "¿Eres religioso?", "A4": "No, no realmente", "A5": "¿Te gusta estudiar?", "A6": "Estudiar es para perdedores", "A7": "¿Naciste con magia?", "A8": "Si, amo aprender", "A9": "¿Interes en la música?", "A10": "En realidad no", "A11": "¿De verdad no te gustan los animales?", "A12": "Prefiero criaturas magicas", "A13": "¿Quieres unir magia y ciencia?", "B1": "¿Puedo hacer ambas?", "B2": "Claro", "B3": "¿Te sientes comodo entre las personas?", "B4": "No mucho", "B5": "¿Te gustan los animales?", "B6": "Meh", "B7": "¿Eres furtivo?", "B8": "No mucho, la verdad", "B9": "¿Prefieres magia que lucha?", "B10": "Le caigo bien a las personas", "C1": "¡Yo rompo!", "C2": "¿Cuerpo a cuerpo o a distancia?", "C3": "Distancia", "C4": "¿Eres social?", "C5": "La magia es un extra", "C6": "¿Quieres ser rico?", "C7": "Cuerpo a cuerpo", "C8": "¿Peleas por una causa?", "C9": "¿El dinero es una causa?", "C10": "¿Eres civilizado?", "C11": "Si, mis creencias me definen", "C12": "¿Sabes artes marciales?", "C13": "Meh"}, "graph": {"A1": [["Lanzar magia", "A2"], ["¿Puedo hacer ambas?", "B1"], ["¡Yo rompo!", "C1"]], "A2": [["¿Eres religioso?", "A3"]], "A3": [["¿Quieres escuchar sobre mi Dios?", "CLASS:Clérigo"], ["No, no realmente", "A4"]], "A4": [["¿Te gusta estudiar?", "A5"]], "A5": [["Estudiar es para perdedores", "A6"], ["Sí, amo aprender", "A8"]], "A6": [["¿Naciste con magia?", "A7"]], "A7": [["No", "CLASS:Brujo"], ["Sí, está en mi sangre", "CLASS:Hechicero"]], "A8": [["¿Interés en la música?", "A9"]], "A9": [["En realidad no", "A10"], ["Sí, hasta hago poesía", "CLASS:Bardo"]], "A10": [["¿De verdad no te gustan los animales?", "A11"]], "A11": [["Prefiero criaturas mágicas", "A12"], ["Prefiero animales que gente", "CLASS:Druida"]], "A12": [["¿Quieres unir magia y ciencia?", "A13"]], "A13": [["Sí", "CLASS:Artífice"], ["No", "CLASS:Mago"]], "B1": [["Claro", "B2"]], "B2": [["¿Te sientes cómodo entre las personas?", "B3"]], "B3": [["No mucho", "B4"], ["Le caigo bien a las personas", "B10"]], "B4": [["¿Te gustan los animales?", "B5"]], "B5": [["¡Son tan suaves!", "CLASS:Druida"], ["Meh", "B6"]], "B6": [["¿Eres furtivo?", "B7"]], "B7": [["¡Soy la noche!", "CLASS:Pícaro"], ["No mucho, la verdad", "B9"]], "B9": [["Sí, pelear es para perdedores", "CLASS:Bardo"], ["La magia es un extra", "C5"]], "B10": [["¿Eres furtivo?", "B7"]], "C1": [["¿Cuerpo a cuerpo o a distancia?", "C2"]], "C2": [["Distancia", "C3"], ["Cuerpo a cuerpo", "C7"]], "C3": [["¿Eres social?", "C4"]], "C4": [["Le caigo bien a las personas", "B10"], ["No, prefiero animales", "CLASS:Ranger"]], "C5": [["¿Quieres ser rico?", "C6"]], "C6": [["¿Es una pregunta?", "CLASS:Pícaro"], ["Meh", "C13"]], "C7": [["¿Peleas por una causa?", "C8"]], "C8": [["¿El dinero es una causa?", "C9"], ["Sí, mis creencias me definen", "C11"]], "C9": [["¿Eres civilizado?", "C10"]], "C10": [["Digo, no como gente ni nada", "CLASS:Guerrero"], ["No, fui criado en el campo", "CLASS:Bárbaro"]], "C11": [["¿Sabes artes marciales?", "C12"]], "C12": [["No", "CLASS:Paladín"], ["¡Mis puños tienen hambre de justicia!", "CLASS:Monje"]], "C13": [["¿Sabes artes marciales?", "C12"]]}, "decisionNodes": ["A1", "A11", "A13", "A3", "A5", "A7", "A9", "B10", "B3", "B5", "B7", "B9", "C10", "C12", "C2", "C4", "C6", "C8", "C9"], "classes": ["Clérigo", "Brujo", "Hechicero", "Mago", "Artífice", "Bardo", "Druida", "Pícaro", "Guerrero", "Bárbaro", "Monje", "Paladín", "Ranger"]};
+const classes = new Set(DATA.classes.map(c => "CLASS:" + c));
+
+function idFor(key) {
+    return "node-" + key.normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^A-Za-z0-9_-]/g, "-");
+}
+
+let history = [];
+let current = "A1";
+let visitedNodes = new Set(["A1"]);
+let visitedLinks = new Set();
+let isFinished = false;
+
+function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, c => ({
+        "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#039;"
+    })[c]);
+}
+
+function traverseLinear(startKey) {
+    let node = startKey;
+
+    while (DATA.graph[node] && DATA.graph[node].length === 1) {
+        const next = DATA.graph[node][0][1];
+        visitedNodes.add(node);
+        visitedLinks.add(node + "->" + next);
+        node = next;
+
+        if (classes.has(node)) {
+            return { type: "class", value: node };
+        }
+    }
+
+    return { type: "question", value: node };
+}
+
+function scrollToNode(nodeId) {
+    requestAnimationFrame(() => {
+        const active = document.getElementById(idFor(nodeId));
+        if (active) {
+            active.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center',
+                inline: 'center'
+            });
+        }
+    });
+}
+
+function render() {
+    const panel = document.getElementById("action-panel");
+    const back = document.getElementById("btn-back");
+
+    back.disabled = history.length === 0 || isFinished;
+
+    document.querySelectorAll(".node").forEach(el => {
+        el.classList.remove("active", "visited");
+        const key = el.dataset.key;
+
+        if (!isFinished && key === current) {
+            el.classList.add("active");
+        } else if (visitedNodes.has(key)) {
+            el.classList.add("visited");
+        }
+    });
+
+    if (isFinished) {
+        panel.innerHTML = `
+            <div class="finished-banner">¡Clase final: ${escapeHtml(current.replace("CLASS:",""))}!</div>
+            <div style="font-size:.85rem;margin-bottom:8px;">
+                Ahora sí: la clase solo aparece al terminar el quiz.
+            </div>
+            <button onclick="resetTree()">Probar de nuevo</button>
+        `;
+        drawLines();
+        scrollToNode(current);
+        return;
+    }
+
+    const options = DATA.graph[current] || [];
+
+    panel.innerHTML = `
+        <div id="action-question">${escapeHtml(DATA.labels[current] || current)}</div>
+        <div id="action-options" class="options-group"></div>
+    `;
+
+    const box = document.getElementById("action-options");
+
+    options.forEach(([text, next]) => {
+        const b = document.createElement("button");
+        b.textContent = text;
+        b.onclick = () => makeChoice(text, next);
+        box.appendChild(b);
+    });
+
+    drawLines();
+    scrollToNode(current);
+}
+
+function makeChoice(answerText, nextKey) {
+    history.push({
+        current,
+        visitedNodes: new Set(visitedNodes),
+        visitedLinks: new Set(visitedLinks),
+        isFinished
+    });
+
+    visitedNodes.add(current);
+    visitedLinks.add(current + "->" + nextKey);
+
+    if (classes.has(nextKey)) {
+        current = nextKey;
+        visitedNodes.add(nextKey);
+        isFinished = true;
+        render();
+        return;
+    }
+
+    current = nextKey;
+
+    const result = traverseLinear(current);
+
+    if (result.type === "class") {
+        current = result.value;
+        visitedNodes.add(current);
+        isFinished = true;
+    } else {
+        current = result.value;
+    }
+
+    render();
+}
+
+function goBack() {
+    if (!history.length) return;
+
+    const previous = history.pop();
+    current = previous.current;
+    visitedNodes = previous.visitedNodes;
+    visitedLinks = previous.visitedLinks;
+    isFinished = previous.isFinished;
+
+    render();
+}
+
+function resetTree() {
+    history = [];
+    current = "A1";
+    visitedNodes = new Set(["A1"]);
+    visitedLinks = new Set();
+    isFinished = false;
+    render();
+}
+
+function drawLines() {
+    const svg = document.getElementById("svg-lines");
+    const container = document.getElementById("diagram-container");
+    const rect = container.getBoundingClientRect();
+
+    svg.innerHTML = "";
+
+    Object.entries(DATA.graph).forEach(([from, targets]) => {
+        targets.forEach(([answer, to]) => {
+            const a = document.getElementById(idFor(from));
+            const b = document.getElementById(idFor(to));
+
+            if (!a || !b) return;
+
+            const ra = a.getBoundingClientRect();
+            const rb = b.getBoundingClientRect();
+
+            const x1 = ra.left + ra.width / 2 - rect.left;
+            const y1 = ra.bottom - rect.top;
+            const x2 = rb.left + rb.width / 2 - rect.left;
+            const y2 = rb.top - rect.top;
+            const mid = y1 + (y2-y1)/2;
+
+            const path = document.createElementNS("http://www.w3.org/2000/svg","path");
+            path.setAttribute("d", `M ${x1} ${y1} V ${mid} H ${x2} V ${y2}`);
+
+            if (visitedLinks.has(from + "->" + to)) {
+                path.classList.add("active-line");
+            }
+
+            svg.appendChild(path);
+        });
+    });
+}
+
+setTimeout(() => {
+    render();
+}, 50);
+
+const wrapperEl = document.getElementById("diagram-wrapper");
+if (wrapperEl) {
+    wrapperEl.onscroll = drawLines;
+}
+window.onresize = drawLines;
+</script>

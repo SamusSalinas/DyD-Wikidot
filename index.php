@@ -28,6 +28,7 @@ $ruta_archivo = "paginas/" . $pagina_segura . ".html";
                 <h3>Navegación</h3>
                 <ul>
                     <li><a href="index.php?page=inicio">Página Principal</a></li>
+                    <li><a href="index.php?page=quiz/inicio">¿Que clase de DnD soy?</a></li>
                 </ul>
                 
                 <h3>Reglas de Creación</h3>
