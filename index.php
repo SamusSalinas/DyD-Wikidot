@@ -1,7 +1,15 @@
 <?php
-$pagina_solicitada = isset($_GET['page']) ? $_GET['page'] : 'inicio';
-$pagina_segura = str_replace(array('../', '..\\'), '', $pagina_solicitada);
-$ruta_archivo = "paginas/" . $pagina_segura . ".html";
+$pagina_solicitada = isset($_GET['page']) && is_string($_GET['page'])
+    ? $_GET['page']
+    : (isset($_GET['page']) ? '' : 'inicio');
+$pagina_segura = preg_match('/\A[a-zA-Z0-9_-]+(?:\/[a-zA-Z0-9_-]+)*\z/', $pagina_solicitada)
+    ? $pagina_solicitada
+    : '';
+$ruta_base = __DIR__ . DIRECTORY_SEPARATOR . 'paginas' . DIRECTORY_SEPARATOR
+    . str_replace('/', DIRECTORY_SEPARATOR, $pagina_segura);
+$ruta_html = $ruta_base . '.html';
+$ruta_php = $ruta_base . '.php';
+$ruta_archivo = is_file($ruta_html) ? $ruta_html : (is_file($ruta_php) ? $ruta_php : null);
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -29,6 +37,7 @@ $ruta_archivo = "paginas/" . $pagina_segura . ".html";
                 <ul>
                     <li><a href="index.php?page=inicio">Página Principal</a></li>
                     <li><a href="index.php?page=quiz/inicio">¿Que clase de DnD soy?</a></li>
+                    <li><a href="index.php?page=personajes/hoja">Hoja de personaje</a></li>
                 </ul>
                 
                 <h3>Reglas de Creación</h3>
@@ -50,15 +59,15 @@ $ruta_archivo = "paginas/" . $pagina_segura . ".html";
             <!-- ÁREA DE CONTENIDO PRINCIPAL -->
             <main class="columna-contenido">
                 <?php
-                if (file_exists($ruta_archivo)) {
-                    include($ruta_archivo);
+                if ($ruta_archivo !== null) {
+                    include $ruta_archivo;
                 } else {
-                    if ($pagina_segura === 'inicio') {
+                    if ($pagina_solicitada === 'inicio') {
                         echo "<h2>Bienvenido a la Wiki</h2>";
                         echo "<p>Para comenzar, debes crear un archivo llamado <b>inicio.html</b> dentro de la carpeta <b>paginas/</b>.</p>";
                     } else {
                         echo "<h2>Página no encontrada</h2>";
-                        echo "<p>La página <b>" . htmlspecialchars($pagina_segura) . "</b> no ha sido generada todavía.</p>";
+                        echo "<p>La página <b>" . htmlspecialchars($pagina_solicitada, ENT_QUOTES, 'UTF-8') . "</b> no ha sido generada todavía.</p>";
                     }
                 }
                 ?>
