@@ -8,6 +8,7 @@ $atributos = personaje_atributos();
 $habilidades = personaje_habilidades();
 $clases = personaje_opciones_clases();
 $razas = personaje_opciones_razas();
+$trasfondos = personaje_opciones_trasfondos();
 
 function personaje_marcar_seleccionado($seleccionados, $valor)
 {
@@ -57,9 +58,29 @@ function personaje_marcar_seleccionado($seleccionados, $valor)
                 <?php } ?>
             </select>
         </p>
+        
+        <!-- NUEVO: Selector dinámico de subclases basado en la clase -->
+        <p>
+            <label for="subclase">Subclase / Arquetipo</label><br>
+            <select id="subclase" name="subclase">
+                <option value="">Seleccionar clase primero</option>
+                <?php 
+                $subclases_disponibles = personaje_opciones_subclases($personaje['clase']);
+                foreach ($subclases_disponibles as $sub) { 
+                ?>
+                    <option value="<?php echo htmlspecialchars($sub, ENT_QUOTES, 'UTF-8'); ?>"<?php echo (isset($personaje['subclase']) && $personaje['subclase'] === $sub) ? ' selected' : ''; ?>><?php echo htmlspecialchars($sub, ENT_QUOTES, 'UTF-8'); ?></option>
+                <?php } ?>
+            </select>
+        </p>
+
         <p>
             <label for="trasfondo">Trasfondo</label><br>
-            <input id="trasfondo" name="trasfondo" type="text" maxlength="80" value="<?php echo htmlspecialchars($personaje['trasfondo'], ENT_QUOTES, 'UTF-8'); ?>">
+            <select id="trasfondo" name="trasfondo">
+                <option value="">Seleccionar</option>
+                <?php foreach ($trasfondos as $trasfondo) { ?>
+                    <option value="<?php echo htmlspecialchars($trasfondo, ENT_QUOTES, 'UTF-8'); ?>"<?php echo (isset($personaje['trasfondo']) && $personaje['trasfondo'] === $trasfondo) ? ' selected' : ''; ?>><?php echo htmlspecialchars($trasfondo, ENT_QUOTES, 'UTF-8'); ?></option>
+                <?php } ?>
+            </select>
         </p>
         <p>
             <label for="alineamiento">Alineamiento</label><br>

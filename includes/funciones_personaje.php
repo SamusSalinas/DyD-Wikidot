@@ -1,219 +1,202 @@
 <?php
-function personaje_opciones_clases()
-{
-    return array(
-        'Barbarian', 'Bard', 'Cleric', 'Druid', 'Fighter', 'Monk',
-        'Paladin', 'Ranger', 'Rogue', 'Sorcerer', 'Warlock', 'Wizard'
-    );
+require_once __DIR__ . '/conexion.php';
+
+/**
+ * Devuelve la lista de atributos principales de D&D 5e
+ */
+function personaje_atributos() {
+    return [
+        'fuerza'     => ['nombre' => 'Fuerza', 'campo' => 'at_fuerza'],
+        'destreza'   => ['nombre' => 'Destreza', 'campo' => 'at_destreza'],
+        'constitucion' => ['nombre' => 'Constitución', 'campo' => 'at_constitucion'],
+        'inteligencia' => ['nombre' => 'Inteligencia', 'campo' => 'at_inteligencia'],
+        'sabiduria'  => ['nombre' => 'Sabiduría', 'campo' => 'at_sabiduria'],
+        'carisma'    => ['nombre' => 'Carisma', 'campo' => 'at_carisma']
+    ];
 }
 
-function personaje_opciones_razas()
-{
-    return array(
-        'Dragonborn', 'Dwarf', 'Elf', 'Gnome', 'Half-Elf', 'Half-Orc',
-        'Halfling', 'Human', 'Tiefling'
-    );
+/**
+ * Devuelve las habilidades y su atributo asociado
+ */
+function personaje_habilidades() {
+    return [
+        'acrobacias'       => ['nombre' => 'Acrobacias', 'atributo' => 'destreza'],
+        'arcanos'          => ['nombre' => 'Arcanos', 'atributo' => 'inteligencia'],
+        'atletismo'        => ['nombre' => 'Atletismo', 'atributo' => 'fuerza'],
+        'engaño'           => ['nombre' => 'Engaño', 'atributo' => 'carisma'],
+        'historia'         => ['nombre' => 'Historia', 'atributo' => 'inteligencia'],
+        'interpretacion'   => ['nombre' => 'Interpretación', 'atributo' => 'carisma'],
+        'intimidacion'     => ['nombre' => 'Intimidación', 'atributo' => 'carisma'],
+        'investigacion'    => ['nombre' => 'Investigación', 'atributo' => 'inteligencia'],
+        'juego_de_manos'   => ['nombre' => 'Juego de Manos', 'atributo' => 'destreza'],
+        'medicina'         => ['nombre' => 'Medicina', 'atributo' => 'sabiduria'],
+        'naturaleza'       => ['nombre' => 'Naturaleza', 'atributo' => 'inteligencia'],
+        'percepcion'       => ['nombre' => 'Percepción', 'atributo' => 'sabiduria'],
+        'perspicacia'      => ['nombre' => 'Perspicacia', 'atributo' => 'sabiduria'],
+        'persuasion'       => ['nombre' => 'Persuasión', 'atributo' => 'carisma'],
+        'religion'         => ['nombre' => 'Religión', 'atributo' => 'inteligencia'],
+        'sigilo'           => ['nombre' => 'Sigilo', 'atributo' => 'destreza'],
+        'supervivencia'    => ['nombre' => 'Supervivencia', 'atributo' => 'sabiduria'],
+        'trato_con_animales' => ['nombre' => 'Trato con Animales', 'atributo' => 'sabiduria']
+    ];
 }
 
-function personaje_atributos()
-{
-    return array(
-        'str' => array('nombre' => 'Fuerza', 'campo' => 'fuerza'),
-        'dex' => array('nombre' => 'Destreza', 'campo' => 'destreza'),
-        'con' => array('nombre' => 'Constitución', 'campo' => 'constitucion'),
-        'int' => array('nombre' => 'Inteligencia', 'campo' => 'inteligencia'),
-        'wis' => array('nombre' => 'Sabiduría', 'campo' => 'sabiduria'),
-        'cha' => array('nombre' => 'Carisma', 'campo' => 'carisma')
-    );
-}
-
-function personaje_habilidades()
-{
-    return array(
-        'acrobatics' => array('nombre' => 'Acrobacias', 'atributo' => 'dex'),
-        'animal_handling' => array('nombre' => 'Trato con animales', 'atributo' => 'wis'),
-        'arcana' => array('nombre' => 'Arcanos', 'atributo' => 'int'),
-        'athletics' => array('nombre' => 'Atletismo', 'atributo' => 'str'),
-        'deception' => array('nombre' => 'Engaño', 'atributo' => 'cha'),
-        'history' => array('nombre' => 'Historia', 'atributo' => 'int'),
-        'insight' => array('nombre' => 'Perspicacia', 'atributo' => 'wis'),
-        'intimidation' => array('nombre' => 'Intimidación', 'atributo' => 'cha'),
-        'investigation' => array('nombre' => 'Investigación', 'atributo' => 'int'),
-        'medicine' => array('nombre' => 'Medicina', 'atributo' => 'wis'),
-        'nature' => array('nombre' => 'Naturaleza', 'atributo' => 'int'),
-        'perception' => array('nombre' => 'Percepción', 'atributo' => 'wis'),
-        'performance' => array('nombre' => 'Interpretación', 'atributo' => 'cha'),
-        'persuasion' => array('nombre' => 'Persuasión', 'atributo' => 'cha'),
-        'religion' => array('nombre' => 'Religión', 'atributo' => 'int'),
-        'sleight_of_hand' => array('nombre' => 'Juego de manos', 'atributo' => 'dex'),
-        'stealth' => array('nombre' => 'Sigilo', 'atributo' => 'dex'),
-        'survival' => array('nombre' => 'Supervivencia', 'atributo' => 'wis')
-    );
-}
-
-function personaje_modificador($puntuacion)
-{
-    return (int) floor(((int) $puntuacion - 10) / 2);
-}
-
-function personaje_formatear_modificador($modificador)
-{
-    return ((int) $modificador >= 0 ? '+' : '') . (int) $modificador;
-}
-
-function personaje_bono_competencia($nivel)
-{
-    $nivel = max(1, min(20, (int) $nivel));
-    return 2 + (int) floor(($nivel - 1) / 4);
-}
-
-function personaje_valor_texto($entrada, $campo, $longitud_maxima, &$errores)
-{
-    if (!isset($entrada[$campo])) {
-        return '';
-    }
-
-    if (!is_string($entrada[$campo])) {
-        $errores[] = 'El campo "' . $campo . '" no es válido.';
-        return '';
-    }
-
-    $valor = trim($entrada[$campo]);
-    if (strlen($valor) > $longitud_maxima) {
-        $errores[] = 'El campo "' . $campo . '" supera el largo máximo permitido.';
-        return substr($valor, 0, $longitud_maxima);
-    }
-
-    return $valor;
-}
-
-function personaje_valor_entero($entrada, $campo, $predeterminado, $minimo, $maximo, &$errores)
-{
-    if (!isset($entrada[$campo]) || $entrada[$campo] === '') {
-        return $predeterminado;
-    }
-
-    if (!is_string($entrada[$campo]) && !is_int($entrada[$campo])) {
-        $errores[] = 'El campo "' . $campo . '" debe ser un número válido.';
-        return $predeterminado;
-    }
-
-    $valor = filter_var($entrada[$campo], FILTER_VALIDATE_INT);
-    if ($valor === false || $valor < $minimo || $valor > $maximo) {
-        $errores[] = 'El campo "' . $campo . '" debe ser un número entre ' . $minimo . ' y ' . $maximo . '.';
-        return $predeterminado;
-    }
-
-    return $valor;
-}
-
-function personaje_valores_seleccionados($entrada, $campo, $opciones, &$errores)
-{
-    if (!isset($entrada[$campo])) {
-        return array();
-    }
-
-    if (!is_array($entrada[$campo])) {
-        $errores[] = 'La selección de "' . $campo . '" no es válida.';
-        return array();
-    }
-
-    $seleccionados = array();
-    foreach ($entrada[$campo] as $valor) {
-        if (!is_string($valor) || !in_array($valor, $opciones, true)) {
-            $errores[] = 'La selección de "' . $campo . '" contiene un valor no permitido.';
-            continue;
-        }
-        if (!in_array($valor, $seleccionados, true)) {
-            $seleccionados[] = $valor;
+/**
+ * Obtiene las opciones de clases desde la base de datos local
+ */
+function personaje_opciones_clases() {
+    global $conexion;
+    $clases = [];
+    $resultado = $conexion->query("SELECT nombre FROM clases ORDER BY nombre ASC");
+    if ($resultado) {
+        while ($row = $resultado->fetch_assoc()) {
+            $clases[] = $row['nombre'];
         }
     }
-
-    return $seleccionados;
+    return $clases;
 }
 
-function personaje_generar_hoja($entrada)
-{
-    $errores = array();
-    if (!is_array($entrada)) {
-        $entrada = array();
-        $errores[] = 'Los datos recibidos para la hoja no son válidos.';
+/**
+ * Obtiene las opciones de razas desde la base de datos local
+ */
+function personaje_opciones_razas() {
+    global $conexion;
+    $razas = [];
+    $resultado = $conexion->query("SELECT nombre FROM razas ORDER BY nombre ASC");
+    if ($resultado) {
+        while ($row = $resultado->fetch_assoc()) {
+            $razas[] = $row['nombre'];
+        }
     }
-
-    $clases = personaje_opciones_clases();
-    $razas = personaje_opciones_razas();
-    $habilidades = personaje_habilidades();
-    $atributos = personaje_atributos();
-    $datos = array(
-        'nombre' => personaje_valor_texto($entrada, 'nombre', 80, $errores),
-        'jugador' => personaje_valor_texto($entrada, 'jugador', 80, $errores),
-        'trasfondo' => personaje_valor_texto($entrada, 'trasfondo', 80, $errores),
-        'alineamiento' => personaje_valor_texto($entrada, 'alineamiento', 40, $errores),
-        'clase' => '',
-        'raza' => '',
-        'nivel' => personaje_valor_entero($entrada, 'nivel', 1, 1, 20, $errores),
-        'experiencia' => personaje_valor_entero($entrada, 'experiencia', 0, 0, 9999999, $errores),
-        'clase_armadura' => personaje_valor_entero($entrada, 'clase_armadura', 10, 0, 99, $errores),
-        'velocidad' => personaje_valor_entero($entrada, 'velocidad', 30, 0, 999, $errores),
-        'puntos_golpe_maximos' => personaje_valor_entero($entrada, 'puntos_golpe_maximos', 10, 0, 9999, $errores),
-        'puntos_golpe_actuales' => personaje_valor_entero($entrada, 'puntos_golpe_actuales', 10, 0, 9999, $errores),
-        'puntos_golpe_temporales' => personaje_valor_entero($entrada, 'puntos_golpe_temporales', 0, 0, 9999, $errores),
-        'atributos' => array(),
-        'salvaciones' => array(),
-        'habilidades' => array(),
-        'equipo' => personaje_valor_texto($entrada, 'equipo', 2000, $errores),
-        'rasgos' => personaje_valor_texto($entrada, 'rasgos', 2000, $errores)
-    );
-
-    if (isset($entrada['clase']) && in_array($entrada['clase'], $clases, true)) {
-        $datos['clase'] = $entrada['clase'];
-    } elseif (isset($entrada['clase']) && $entrada['clase'] !== '') {
-        $errores[] = 'Selecciona una clase válida.';
-    }
-
-    if (isset($entrada['raza']) && in_array($entrada['raza'], $razas, true)) {
-        $datos['raza'] = $entrada['raza'];
-    } elseif (isset($entrada['raza']) && $entrada['raza'] !== '') {
-        $errores[] = 'Selecciona una raza válida.';
-    }
-
-    foreach ($atributos as $codigo => $atributo) {
-        $campo = $atributo['campo'];
-        $datos['atributos'][$codigo] = personaje_valor_entero($entrada, $campo, 10, 1, 30, $errores);
-    }
-
-    $datos['salvaciones'] = personaje_valores_seleccionados(
-        $entrada,
-        'salvaciones',
-        array_keys($atributos),
-        $errores
-    );
-    $datos['habilidades'] = personaje_valores_seleccionados(
-        $entrada,
-        'habilidades',
-        array_keys($habilidades),
-        $errores
-    );
-
-    if ($datos['puntos_golpe_actuales'] > $datos['puntos_golpe_maximos']) {
-        $errores[] = 'Los puntos de golpe actuales no pueden superar el máximo.';
-    }
-
-    return array('datos' => $datos, 'errores' => $errores);
+    return $razas;
 }
 
-function personaje_modificador_habilidad($clave, $datos)
-{
+/**
+ * Calcula el modificador de un atributo de D&D (Puntuación - 10) / 2
+ */
+function personaje_modificador($puntuacion) {
+    return floor(((int)$puntuacion - 10) / 2);
+}
+
+/**
+ * Formatea el modificador con signo (+ o -)
+ */
+function personaje_formatear_modificador($modificador) {
+    return ($modificador >= 0 ? '+' : '') . $modificador;
+}
+
+/**
+ * Calcula el bono de competencia según el nivel del personaje
+ */
+function personaje_bono_competencia($nivel) {
+    $nivel = max(1, min(20, (int)$nivel));
+    return floor(($nivel - 1) / 4) + 2;
+}
+
+/**
+ * Calcula el modificador de una habilidad específica
+ */
+function personaje_modificador_habilidad($clave_habilidad, $personaje) {
     $habilidades = personaje_habilidades();
-    if (!isset($habilidades[$clave])) {
-        return null;
+    if (!isset($habilidades[$clave_habilidad])) return 0;
+    
+    $atributo_asociado = $habilidades[$clave_habilidad]['atributo'];
+    $puntuacion = isset($personaje['atributos'][$sub = substr($atributo_asociado, 0, 3)]) ? $personaje['atributos'][substr($atributo_asociado, 0, 3)] : 10;
+    
+    // Mapeo corto de abreviaturas de atributos
+    $mapa = ['fuerza' => 'fue', 'destreza' => 'dex', 'constitucion' => 'con', 'inteligencia' => 'int', 'sabiduria' => 'sab', 'carisma' => 'car'];
+    $codigo_corto = isset($mapa[$atributo_asociado]) ? $mapa[$atributo_asociado] : 'fue';
+    
+    $puntuacion_attr = isset($personaje['atributos'][$codigo_corto]) ? $personaje['atributos'][$codigo_corto] : 10;
+    $mod = personaje_modificador($puntuacion_attr);
+    
+    if (in_array($clave_habilidad, $personaje['habilidades'], true)) {
+        $mod += personaje_bono_competencia($personaje['nivel']);
+    }
+    
+    return $mod;
+}
+
+/**
+ * Procesa y valida los datos enviados por POST para la hoja de personaje
+ */
+function personaje_generar_hoja($datos_post) {
+    $errores = [];
+    
+    // Estructura por defecto del personaje
+    $personaje = [
+        'nombre' => isset($datos_post['nombre']) ? trim($datos_post['nombre']) : '',
+        'jugador' => isset($datos_post['jugador']) ? trim($datos_post['jugador']) : '',
+        'raza' => isset($datos_post['raza']) ? trim($datos_post['raza']) : '',
+        'clase' => isset($datos_post['clase']) ? trim($datos_post['clase']) : '',
+        'trasfondo' => isset($datos_post['trasfondo']) ? trim($datos_post['trasfondo']) : '',
+        'alineamiento' => isset($datos_post['alineamiento']) ? trim($datos_post['alineamiento']) : '',
+        'nivel' => isset($datos_post['nivel']) ? max(1, min(20, (int)$datos_post['nivel'])) : 1,
+        'experiencia' => isset($datos_post['experiencia']) ? max(0, (int)$datos_post['experiencia']) : 0,
+        
+        'atributos' => [
+            'fue' => isset($datos_post['at_fuerza']) ? max(1, min(30, (int)$datos_post['at_fuerza'])) : 10,
+            'dex' => isset($datos_post['at_destreza']) ? max(1, min(30, (int)$datos_post['at_destreza'])) : 10,
+            'con' => isset($datos_post['at_constitucion']) ? max(1, min(30, (int)$datos_post['at_constitucion'])) : 10,
+            'int' => isset($datos_post['at_inteligencia']) ? max(1, min(30, (int)$datos_post['at_inteligencia'])) : 10,
+            'sab' => isset($datos_post['at_sabiduria']) ? max(1, min(30, (int)$datos_post['at_sabiduria'])) : 10,
+            'car' => isset($datos_post['at_carisma']) ? max(1, min(30, (int)$datos_post['at_carisma'])) : 10,
+        ],
+        
+        'salvaciones' => isset($datos_post['salvaciones']) && is_array($datos_post['salvaciones']) ? $datos_post['salvaciones'] : [],
+        'habilidades' => isset($datos_post['habilidades']) && is_array($datos_post['habilidades']) ? $datos_post['habilidades'] : [],
+        
+        'clase_armadura' => isset($datos_post['clase_armadura']) ? (int)$datos_post['clase_armadura'] : 10,
+        'velocidad' => isset($datos_post['velocidad']) ? (int)$datos_post['velocidad'] : 9,
+        'puntos_golpe_actuales' => isset($datos_post['puntos_golpe_actuales']) ? (int)$datos_post['puntos_golpe_actuales'] : 10,
+        'puntos_golpe_maximos' => isset($datos_post['puntos_golpe_maximos']) ? (int)$datos_post['puntos_golpe_maximos'] : 10,
+        'puntos_golpe_temporales' => isset($datos_post['puntos_golpe_temporales']) ? (int)$datos_post['puntos_golpe_temporales'] : 0,
+        
+        'equipo' => isset($datos_post['equipo']) ? trim($datos_post['equipo']) : '',
+        'rasgos' => isset($datos_post['rasgos']) ? trim($datos_post['rasgos']) : ''
+    ];
+
+    // Validaciones básicas
+    if (empty($personaje['nombre'])) {
+        $errores[] = "El nombre del personaje es obligatorio.";
     }
 
-    $atributo = $habilidades[$clave]['atributo'];
-    $modificador = personaje_modificador($datos['atributos'][$atributo]);
-    if (in_array($clave, $datos['habilidades'], true)) {
-        $modificador += personaje_bono_competencia($datos['nivel']);
-    }
+    return [
+        'datos' => $personaje,
+        'errores' => $errores
+    ];
+}
 
-    return $modificador;
+/**
+ * Obtiene las opciones de trasfondos desde la base de datos local
+ */
+function personaje_opciones_trasfondos() {
+    global $conexion;
+    $trasfondos = [];
+    $resultado = $conexion->query("SELECT nombre FROM trasfondos ORDER BY nombre ASC");
+    if ($resultado) {
+        while ($row = $resultado->fetch_assoc()) {
+            $trasfondos[] = $row['nombre'];
+        }
+    }
+    return $trasfondos;
+}
+
+/**
+ * Obtiene las subclases según la clase seleccionada
+ */
+function personaje_opciones_subclases($nombre_clase = '') {
+    global $conexion;
+    $subclases = [];
+    if (empty($nombre_clase)) return $subclases;
+    
+    $stmt = $conexion->prepare("SELECT s.nombre FROM subclases s INNER JOIN clases c ON s.clase_id = c.id WHERE c.nombre = ? ORDER BY s.nombre ASC");
+    $stmt->bind_param("s", $nombre_clase);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    while ($row = $res->fetch_assoc()) {
+        $subclases[] = $row['nombre'];
+    }
+    $stmt->close();
+    return $subclases;
 }
