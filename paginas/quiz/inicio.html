@@ -1,9 +1,12 @@
 <style>
-/* Estilos acotados a la columna principal */
-.columna-contenido {
+/* Estilos acotados al quiz */
+.quiz-app {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
     font-family: serif;
-    background-color: #ffffff;
-    color: #000000;
+    background-color: transparent;
+    color: var(--wiki-ink);
     margin: 0;
     padding: 0;
     display: flex;
@@ -11,46 +14,53 @@
     align-items: center;
     text-align: center;
 }
-.columna-contenido h1 {
+.quiz-app h1 {
     font-size: 1.5rem;
-    border-bottom: 1px solid #ccc;
+    color: var(--wiki-forest);
+    border-bottom: 1px solid var(--wiki-line);
     padding-bottom: 5px;
     margin-bottom: 15px;
     width: 100%;
-    max-width: 1200px;
+    max-width: 100%;
 }
-.columna-contenido .subtitle {
+.quiz-app .subtitle {
     font-size: 0.85rem;
-    color: #555;
+    color: var(--wiki-muted);
     margin-bottom: 20px;
 }
-.columna-contenido .controls {
+.quiz-app .controls {
     margin-bottom: 15px;
     display: flex;
     justify-content: center;
     gap: 10px;
+    flex-wrap: wrap;
 }
-.columna-contenido button {
-    font-family: serif;
-    background: #f8f9fa;
-    color: #000;
-    border: 1px solid #a2a9b1;
-    padding: 4px 10px;
+.quiz-app button {
+    color: #fffaf0;
+    background: var(--wiki-forest);
+    border: 1px solid var(--wiki-forest);
+    border-radius: 0.55rem;
+    padding: 7px 12px;
     cursor: pointer;
-    font-size: 0.9rem;
+    font: inherit;
+    font-size: 0.88rem;
+    font-weight: 650;
 }
-.columna-contenido button:hover { background: #e5edf5; }
-.columna-contenido button:disabled { opacity: 0.5; cursor: default; }
+.quiz-app button:hover { background: var(--wiki-forest-light); }
+.quiz-app button:disabled { opacity: 0.5; cursor: default; }
 
-/* Panel de preguntas fijo */
+/* Panel de preguntas */
 #action-panel {
-    background: #f8f9fa;
-    border: 1px solid #a2a9b1;
+    background: #f8f5ed;
+    border: 1px solid var(--wiki-line);
+    border-left: 4px solid var(--wiki-copper);
+    border-radius: 0.8rem;
     padding: 12px 15px;
     margin: 0 auto 15px auto;
-    max-width: 550px;
+    max-width: 36rem;
     width: 100%;
     box-sizing: border-box;
+    box-shadow: 0 0.4rem 1.2rem rgba(35, 44, 37, 0.06);
 }
 #action-question { font-weight: bold; margin-bottom: 10px; }
 .options-group {
@@ -59,19 +69,23 @@
     gap: 10px;
     flex-wrap: wrap;
 }
-.options-group button { background: #ffffff; border: 1px solid #72777d; }
-.finished-banner { font-weight: bold; color: #006600; margin-bottom: 5px; }
+.options-group button { background: #fffdf8; color: var(--wiki-forest); border-color: var(--wiki-line); }
+.options-group button:hover { color: #fffaf0; }
+.finished-banner { font-weight: bold; color: var(--wiki-forest-light); margin-bottom: 5px; }
 
 /* Diagrama con scroll suave interno */
 #diagram-wrapper {
     position: relative;
     width: 100%;
-    max-width: 1200px;
+    min-width: 0;
+    max-width: 100%;
     height: 520px;
     overflow: auto;
-    scroll-behavior: smooth; /* Hace que el scroll sea fluido */
-    border: 1px solid #e5e5e5;
+    scroll-behavior: smooth;
+    border: 1px solid var(--wiki-line);
+    border-radius: 0.8rem;
     padding: 10px 0;
+    background: var(--wiki-surface);
 }
 #diagram-container {
     display: flex;
@@ -90,9 +104,10 @@
     box-sizing: border-box;
 }
 .node {
-    background: #ffffff;
-    color: #555555;
-    border: 1px dashed #ccc;
+    background: #fffdf8;
+    color: var(--wiki-ink);
+    border: 1px dashed #c9c2b3;
+    border-radius: 0.5rem;
     padding: 8px 10px;
     font-size: 0.72rem;
     text-align: center;
@@ -103,14 +118,15 @@
     transition: background-color 0.3s, border-color 0.3s;
 }
 .node.active {
-    color: #000000;
-    border: 2px solid #000000;
+    color: var(--wiki-forest);
+    background: #f3ead4;
+    border: 2px solid var(--wiki-copper);
     font-weight: bold;
 }
 .node.visited {
-    background: #eef9ee;
-    color: #006600;
-    border: 1px solid #28a745;
+    background: #e8f0e9;
+    color: var(--wiki-forest);
+    border: 1px solid var(--wiki-forest-light);
     font-weight: bold;
 }
 .node.class-node {
@@ -127,27 +143,29 @@ svg.connections {
 }
 path {
     fill: none;
-    stroke: #cccccc;
+    stroke: #c9c2b3;
     stroke-width: 1.5;
     stroke-dasharray: 2;
 }
 path.active-line {
-    stroke: #28a745;
+    stroke: var(--wiki-forest-light);
     stroke-width: 2.5;
     stroke-dasharray: none;
 }
 #route {
     font-size: 0.75rem;
-    color: #555;
+    color: var(--wiki-muted);
     max-width: 900px;
     margin: 0 auto 20px;
     line-height: 1.5;
 }
 </style>
 
+<div class="quiz-app">
 <h1>¿Qué clase de D&amp;D debes jugar?</h1>
 
 <div class="controls">
+    <a class="quiz-home-link btn btn-sm" href="index.php?page=inicio">Volver a la wiki</a>
     <button id="btn-back" onclick="goBack()" disabled>Volver atrás</button>
     <button onclick="resetTree()">Reiniciar</button>
 </div>
@@ -235,6 +253,7 @@ path.active-line {
 <div id="node-CLASS-Ranger" class="node class-node" data-key="CLASS:Ranger">Ranger</div>
 </div>
 
+</div>
 </div>
 </div>
 

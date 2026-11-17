@@ -132,7 +132,7 @@ function personaje_valores_seleccionados($entrada, $campo, $opciones, &$errores)
     return $seleccionados;
 }
 
-function personaje_generar_hoja($entrada)
+function personaje_generar_hoja($entrada, $clases = null, $razas = null)
 {
     $errores = array();
     if (!is_array($entrada)) {
@@ -140,8 +140,8 @@ function personaje_generar_hoja($entrada)
         $errores[] = 'Los datos recibidos para la hoja no son válidos.';
     }
 
-    $clases = personaje_opciones_clases();
-    $razas = personaje_opciones_razas();
+    $clases = $clases === null ? personaje_opciones_clases() : $clases;
+    $razas = $razas === null ? personaje_opciones_razas() : $razas;
     $habilidades = personaje_habilidades();
     $atributos = personaje_atributos();
     $datos = array(

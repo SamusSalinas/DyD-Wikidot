@@ -1,13 +1,36 @@
 <?php
 require_once __DIR__ . '/../../includes/funciones_personaje.php';
+require_once __DIR__ . '/../../includes/conexion.php';
 
-$resultado = personaje_generar_hoja($_SERVER['REQUEST_METHOD'] === 'POST' ? $_POST : array());
+try {
+    $conexion = conexion_bd();
+    $clases = $conexion->query('SELECT nombre FROM clases ORDER BY id')->fetchAll(PDO::FETCH_COLUMN);
+    $razas = $conexion->query('SELECT nombre FROM razas ORDER BY id')->fetchAll(PDO::FETCH_COLUMN);
+} catch (PDOException $error) {
+    error_log('Error al cargar los catálogos de personajes: ' . $error->getMessage());
+    http_response_code(500);
+    echo '<h2>Error al cargar la ficha</h2>';
+    echo '<p>No se pudo conectar con la base de datos. Revisa la configuración local de MySQL.</p>';
+    return;
+}
+
+if (count($clases) === 0 || count($razas) === 0) {
+    error_log('No se pudieron cargar las clases o razas desde la base de datos.');
+    http_response_code(500);
+    echo '<h2>Error al cargar la ficha</h2>';
+    echo '<p>La base de datos no contiene las clases o razas necesarias.</p>';
+    return;
+}
+
+$resultado = personaje_generar_hoja(
+    $_SERVER['REQUEST_METHOD'] === 'POST' ? $_POST : array(),
+    $clases,
+    $razas
+);
 $personaje = $resultado['datos'];
 $errores = $resultado['errores'];
 $atributos = personaje_atributos();
 $habilidades = personaje_habilidades();
-$clases = personaje_opciones_clases();
-$razas = personaje_opciones_razas();
 
 function personaje_marcar_seleccionado($seleccionados, $valor)
 {
@@ -18,7 +41,7 @@ function personaje_marcar_seleccionado($seleccionados, $valor)
 <p>Completa los datos para armar una hoja de personaje. Los campos de combate y competencias pueden editarse según tu personaje.</p>
 
 <?php if (count($errores) > 0) { ?>
-    <div role="alert">
+    <div class="alert" role="alert">
         <h3>Revisa estos datos</h3>
         <ul>
             <?php foreach ($errores as $error) { ?>
@@ -28,7 +51,7 @@ function personaje_marcar_seleccionado($seleccionados, $valor)
     </div>
 <?php } ?>
 
-<form method="post" action="index.php?page=personajes/hoja">
+<form class="formulario-personaje" method="post" action="index.php?page=personajes/hoja">
     <fieldset>
         <legend>Identidad</legend>
         <p>
@@ -76,7 +99,8 @@ function personaje_marcar_seleccionado($seleccionados, $valor)
     <fieldset>
         <legend>Atributos</legend>
         <p>Introduce una puntuación entre 1 y 30. Los modificadores se calculan al generar la hoja.</p>
-        <table>
+        <div class="table-responsive">
+        <table class="table table-hover">
             <thead>
                 <tr><th scope="col">Atributo</th><th scope="col">Puntuación</th><th scope="col">Modificador</th><th scope="col">Salvación competente</th><th scope="col">Modificador de salvación</th></tr>
             </thead>
@@ -100,6 +124,7 @@ function personaje_marcar_seleccionado($seleccionados, $valor)
                 <?php } ?>
             </tbody>
         </table>
+        </div>
         <p>Bono de competencia: <?php echo personaje_formatear_modificador(personaje_bono_competencia($personaje['nivel'])); ?></p>
     </fieldset>
 
@@ -131,7 +156,8 @@ function personaje_marcar_seleccionado($seleccionados, $valor)
 
     <fieldset>
         <legend>Habilidades</legend>
-        <table>
+        <div class="table-responsive">
+        <table class="table table-hover">
             <thead><tr><th scope="col">Competente</th><th scope="col">Habilidad</th><th scope="col">Atributo</th><th scope="col">Modificador</th></tr></thead>
             <tbody>
                 <?php foreach ($habilidades as $clave => $habilidad) { ?>
@@ -144,6 +170,7 @@ function personaje_marcar_seleccionado($seleccionados, $valor)
                 <?php } ?>
             </tbody>
         </table>
+        </div>
     </fieldset>
 
     <fieldset>
@@ -154,5 +181,5 @@ function personaje_marcar_seleccionado($seleccionados, $valor)
             <textarea id="rasgos" name="rasgos" rows="4" cols="50" maxlength="2000"><?php echo htmlspecialchars($personaje['rasgos'], ENT_QUOTES, 'UTF-8'); ?></textarea></p>
     </fieldset>
 
-    <p><button type="submit">Generar hoja</button></p>
+    <p><button class="btn btn-primary" type="submit">Generar hoja</button></p>
 </form>
