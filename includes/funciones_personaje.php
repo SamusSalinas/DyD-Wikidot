@@ -1,18 +1,67 @@
 <?php
+require_once __DIR__ . '/conexion.php';
+
 function personaje_opciones_clases()
 {
-    return array(
-        'Barbarian', 'Bard', 'Cleric', 'Druid', 'Fighter', 'Monk',
-        'Paladin', 'Ranger', 'Rogue', 'Sorcerer', 'Warlock', 'Wizard'
-    );
+    global $conexion;
+    $resultado = $conexion->query('SELECT nombre FROM clases ORDER BY nombre ASC');
+    $opciones = array();
+    while ($fila = $resultado->fetch_assoc()) {
+        $opciones[] = $fila['nombre'];
+    }
+
+    return $opciones;
 }
 
 function personaje_opciones_razas()
 {
-    return array(
-        'Dragonborn', 'Dwarf', 'Elf', 'Gnome', 'Half-Elf', 'Half-Orc',
-        'Halfling', 'Human', 'Tiefling'
+    global $conexion;
+    $resultado = $conexion->query('SELECT nombre FROM razas ORDER BY nombre ASC');
+    $opciones = array();
+    while ($fila = $resultado->fetch_assoc()) {
+        $opciones[] = $fila['nombre'];
+    }
+
+    return $opciones;
+}
+
+function personaje_opciones_trasfondos()
+{
+    global $conexion;
+    $resultado = $conexion->query('SELECT nombre FROM trasfondos ORDER BY nombre ASC');
+    $opciones = array();
+    while ($fila = $resultado->fetch_assoc()) {
+        $opciones[] = $fila['nombre'];
+    }
+
+    return $opciones;
+}
+
+function personaje_opciones_subclases($nombre_clase = '')
+{
+    if ($nombre_clase === '') {
+        return array();
+    }
+
+    global $conexion;
+    $consulta = $conexion->prepare(
+        'SELECT s.nombre
+         FROM subclases s
+         INNER JOIN clases c ON c.id = s.clase_id
+         WHERE c.nombre = ?
+         ORDER BY s.nombre ASC'
     );
+    $consulta->bind_param('s', $nombre_clase);
+    $consulta->execute();
+    $consulta->bind_result($nombre);
+
+    $opciones = array();
+    while ($consulta->fetch()) {
+        $opciones[] = $nombre;
+    }
+    $consulta->close();
+
+    return $opciones;
 }
 
 function personaje_atributos()
@@ -132,7 +181,7 @@ function personaje_valores_seleccionados($entrada, $campo, $opciones, &$errores)
     return $seleccionados;
 }
 
-function personaje_generar_hoja($entrada, $clases = null, $razas = null)
+function personaje_generar_hoja($entrada, $clases = null, $razas = null, $trasfondos = null, $subclases = null)
 {
     $errores = array();
     if (!is_array($entrada)) {
@@ -142,12 +191,15 @@ function personaje_generar_hoja($entrada, $clases = null, $razas = null)
 
     $clases = $clases === null ? personaje_opciones_clases() : $clases;
     $razas = $razas === null ? personaje_opciones_razas() : $razas;
+    $trasfondos = $trasfondos === null ? personaje_opciones_trasfondos() : $trasfondos;
+    $subclases = $subclases === null ? array() : $subclases;
     $habilidades = personaje_habilidades();
     $atributos = personaje_atributos();
     $datos = array(
         'nombre' => personaje_valor_texto($entrada, 'nombre', 80, $errores),
         'jugador' => personaje_valor_texto($entrada, 'jugador', 80, $errores),
-        'trasfondo' => personaje_valor_texto($entrada, 'trasfondo', 80, $errores),
+        'trasfondo' => '',
+        'subclase' => '',
         'alineamiento' => personaje_valor_texto($entrada, 'alineamiento', 40, $errores),
         'clase' => '',
         'raza' => '',
@@ -165,16 +217,30 @@ function personaje_generar_hoja($entrada, $clases = null, $razas = null)
         'rasgos' => personaje_valor_texto($entrada, 'rasgos', 2000, $errores)
     );
 
-    if (isset($entrada['clase']) && in_array($entrada['clase'], $clases, true)) {
+    if (isset($entrada['clase']) && is_string($entrada['clase']) && in_array($entrada['clase'], $clases, true)) {
         $datos['clase'] = $entrada['clase'];
     } elseif (isset($entrada['clase']) && $entrada['clase'] !== '') {
         $errores[] = 'Selecciona una clase válida.';
     }
 
-    if (isset($entrada['raza']) && in_array($entrada['raza'], $razas, true)) {
+    if (isset($entrada['raza']) && is_string($entrada['raza']) && in_array($entrada['raza'], $razas, true)) {
         $datos['raza'] = $entrada['raza'];
     } elseif (isset($entrada['raza']) && $entrada['raza'] !== '') {
         $errores[] = 'Selecciona una raza válida.';
+    }
+
+    $trasfondo = personaje_valor_texto($entrada, 'trasfondo', 80, $errores);
+    if ($trasfondo !== '' && in_array($trasfondo, $trasfondos, true)) {
+        $datos['trasfondo'] = $trasfondo;
+    } elseif ($trasfondo !== '') {
+        $errores[] = 'Selecciona un trasfondo válido.';
+    }
+
+    $subclase = personaje_valor_texto($entrada, 'subclase', 80, $errores);
+    if ($subclase !== '' && in_array($subclase, $subclases, true)) {
+        $datos['subclase'] = $subclase;
+    } elseif ($subclase !== '') {
+        $errores[] = 'Selecciona una subclase válida para la clase elegida.';
     }
 
     foreach ($atributos as $codigo => $atributo) {

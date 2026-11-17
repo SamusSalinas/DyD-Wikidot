@@ -3,9 +3,26 @@ require_once __DIR__ . '/../../includes/funciones_personaje.php';
 require_once __DIR__ . '/../../includes/conexion.php';
 
 try {
-    $conexion = conexion_bd();
-    $clases = $conexion->query('SELECT nombre FROM clases ORDER BY id')->fetchAll(PDO::FETCH_COLUMN);
-    $razas = $conexion->query('SELECT nombre FROM razas ORDER BY id')->fetchAll(PDO::FETCH_COLUMN);
+    $pdo = conexion_bd();
+    $clases = $pdo->query('SELECT nombre FROM clases ORDER BY id')->fetchAll(PDO::FETCH_COLUMN);
+    $razas = $pdo->query('SELECT nombre FROM razas ORDER BY id')->fetchAll(PDO::FETCH_COLUMN);
+    $trasfondos = $pdo->query('SELECT nombre FROM trasfondos ORDER BY nombre')->fetchAll(PDO::FETCH_COLUMN);
+
+    $clase_seleccionada = isset($_POST['clase']) && is_string($_POST['clase'])
+        ? trim($_POST['clase'])
+        : '';
+    $subclases = array();
+    if ($clase_seleccionada !== '' && in_array($clase_seleccionada, $clases, true)) {
+        $consulta_subclases = $pdo->prepare(
+            'SELECT s.nombre
+             FROM subclases s
+             INNER JOIN clases c ON c.id = s.clase_id
+             WHERE c.nombre = :clase
+             ORDER BY s.nombre'
+        );
+        $consulta_subclases->execute(array('clase' => $clase_seleccionada));
+        $subclases = $consulta_subclases->fetchAll(PDO::FETCH_COLUMN);
+    }
 } catch (PDOException $error) {
     error_log('Error al cargar los catálogos de personajes: ' . $error->getMessage());
     http_response_code(500);
@@ -25,7 +42,9 @@ if (count($clases) === 0 || count($razas) === 0) {
 $resultado = personaje_generar_hoja(
     $_SERVER['REQUEST_METHOD'] === 'POST' ? $_POST : array(),
     $clases,
-    $razas
+    $razas,
+    $trasfondos,
+    $subclases
 );
 $personaje = $resultado['datos'];
 $errores = $resultado['errores'];
@@ -80,9 +99,29 @@ function personaje_marcar_seleccionado($seleccionados, $valor)
                 <?php } ?>
             </select>
         </p>
+
+        <!-- NUEVO: Selector dinámico de subclases basado en la clase -->
+        <p>
+            <label for="subclase">Subclase / Arquetipo</label><br>
+            <select id="subclase" name="subclase">
+                <option value="">Seleccionar clase primero</option>
+                <?php
+                $subclases_disponibles = personaje_opciones_subclases($personaje['clase']);
+                foreach ($subclases_disponibles as $sub) {
+                ?>
+                    <option value="<?php echo htmlspecialchars($sub, ENT_QUOTES, 'UTF-8'); ?>"<?php echo (isset($personaje['subclase']) && $personaje['subclase'] === $sub) ? ' selected' : ''; ?>><?php echo htmlspecialchars($sub, ENT_QUOTES, 'UTF-8'); ?></option>
+                <?php } ?>
+            </select>
+        </p>
+
         <p>
             <label for="trasfondo">Trasfondo</label><br>
-            <input id="trasfondo" name="trasfondo" type="text" maxlength="80" value="<?php echo htmlspecialchars($personaje['trasfondo'], ENT_QUOTES, 'UTF-8'); ?>">
+            <select id="trasfondo" name="trasfondo">
+                <option value="">Seleccionar</option>
+                <?php foreach ($trasfondos as $trasfondo) { ?>
+                    <option value="<?php echo htmlspecialchars($trasfondo, ENT_QUOTES, 'UTF-8'); ?>"<?php echo (isset($personaje['trasfondo']) && $personaje['trasfondo'] === $trasfondo) ? ' selected' : ''; ?>><?php echo htmlspecialchars($trasfondo, ENT_QUOTES, 'UTF-8'); ?></option>
+                <?php } ?>
+            </select>
         </p>
         <p>
             <label for="alineamiento">Alineamiento</label><br>

@@ -71,9 +71,10 @@ La configuración por defecto de [conexion.php](./includes/conexion.php) es:
 | Contraseña | Vacía (valor predeterminado de XAMPP en esta computadora) |
 | Puerto MySQL | `3306` |
 
-La conexión usa PDO con `pdo_mysql` y codificación `utf8mb4`. Si cambias los
-datos de acceso, configura `DB_HOST`, `DB_NAME`, `DB_USER` y `DB_PASSWORD` en el
-entorno de Apache; no pongas contraseñas reales en archivos versionados.
+Las consultas nuevas usan PDO y algunas páginas existentes usan MySQLi; habilita
+las extensiones `pdo_mysql` y `mysqli` con codificación `utf8mb4`. Si cambias
+los datos de acceso, configura `DB_HOST`, `DB_NAME`, `DB_USER` y `DB_PASSWORD`
+en el entorno de Apache; no pongas contraseñas reales en archivos versionados.
 
 ### Preparar otra computadora
 
@@ -111,7 +112,7 @@ de la web**. El repositorio `Fabi198/dnd_wikidot` contiene archivos internos
   puerto, úsalo en la URL; en esta computadora es `8080`.
 - **Error de conexión en la hoja:** confirma que MySQL está iniciado, que existe
   `dnd_wikidot` y que las credenciales de Apache coinciden con las de MariaDB.
-- **Error `could not find driver`:** habilita la extensión PHP `pdo_mysql` en
+- **Error de driver de base de datos:** habilita `pdo_mysql` y `mysqli` en
   `C:\xampp\php\php.ini` y reinicia Apache.
 - **La hoja muestra un error de catálogos:** confirma en phpMyAdmin que las
   tablas `clases` y `razas` existen y tienen registros.
