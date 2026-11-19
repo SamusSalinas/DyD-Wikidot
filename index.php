@@ -1,4 +1,7 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 $pagina_solicitada = isset($_GET['page']) && is_string($_GET['page'])
     ? $_GET['page']
     : (isset($_GET['page']) ? '' : 'inicio');
@@ -99,7 +102,8 @@ if ($pagina_segura === 'objetos_magicos/inicio') {
                         <ul class="nav flex-column">
                             <li class="nav-item"><a class="nav-link" href="index.php?page=inicio">Página Principal</a></li>
                             <li class="nav-item"><a class="nav-link" href="index.php?page=quiz/inicio">¿Qué clase de D&amp;D soy?</a></li>
-                            <li class="nav-item"><a class="nav-link" href="index.php?page=personajes/hoja">Hoja de personaje</a></li>
+                            <li class="nav-item"><a class="nav-link" href="index.php?page=personajes/hoja">Crear personaje</a></li>
+                            <li class="nav-item"><a class="nav-link" href="index.php?page=personajes/lista">Lista de personajes</a></li>
                         </ul>
                     </section>
 

@@ -17,6 +17,7 @@
 /database/backups/
 /backups/
 /dumps/
+images/con.png
 *.ibd
 *.frm
 *.MYD

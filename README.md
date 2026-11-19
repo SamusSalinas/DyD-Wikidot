@@ -119,3 +119,42 @@ de la web**. El repositorio `Fabi198/dnd_wikidot` contiene archivos internos
 
 La hoja actualmente lee las clases y razas de la base, pero todavía no guarda
 personajes. La tabla `personajes` restaurada está vacía.
+
+
+
+
+
+Para pasarle tu base de datos completa a tu compañero para que pueda importarla fácilmente en su phpMyAdmin, el método estándar y más rápido es exportarla en formato SQL.
+
+Aquí tenés los pasos exactos que debés seguir vos y lo que tiene que hacer él:
+
+Paso 1: Exportar la base de datos desde tu phpMyAdmin (Lo hacés vos)
+Abrí tu phpMyAdmin en el navegador.
+
+En la columna de la izquierda, hacé clic sobre el nombre de tu base de datos (por ejemplo, la que venís usando para la Wiki de D&D).
+
+En la barra de pestañas superior, buscá y hacé clic en la pestaña Exportar (Export).
+
+Dejalo en el método de exportación Rápido (Quick) y el formato en SQL.
+
+Hacé clic en el botón Continuar (Go). Eso te descargará un archivo con extensión .sql en tu computadora (ej. dylan_wiki.sql o similar).
+
+Paso 2: Enviarle el archivo a tu compañero
+Pasale ese archivo .sql que se acaba de descargar a través de Discord, WhatsApp, Google Drive o el medio que prefieran.
+
+Paso 3: Importar la base de datos en su phpMyAdmin (Lo hace tu compañero)
+Una vez que tu compañero tenga el archivo .sql, tiene que hacer lo siguiente en su computadora:
+
+Abrir su propio phpMyAdmin (generalmente desde XAMPP, WAMP o Laragon).
+
+Crear una nueva base de datos vacía (puede ponerle el mismo nombre que usas vos, por ejemplo dnd_wiki).
+
+Hacer clic sobre esa nueva base de datos en la columna de la izquierda.
+
+En las pestañas superiores, hacer clic en Importar (Import).
+
+En la sección "Archivo a importar", hacer clic en Examinar (Choose File) y seleccionar el archivo .sql que le pasaste.
+
+Ir al final de la página y hacer clic en el botón Continuar (Go).
+
+¡Listo! Con eso phpMyAdmin creará automáticamente todas las tablas (personajes, dotes, subclases, etc.) con los mismos campos y datos exactos que tenés vos en tu entorno local, y su proyecto conectará y funcionará a la perfección.

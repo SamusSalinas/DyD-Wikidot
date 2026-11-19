@@ -239,7 +239,6 @@ textarea:focus-visible {
 .contenido-panel h2 {
     margin-bottom: 0.8rem;
     padding-bottom: 0.65rem;
-    border-bottom: 1px solid var(--wiki-line);
     font-size: clamp(1.55rem, 3vw, 2rem);
 }
 
@@ -880,5 +879,34 @@ textarea:focus-visible {
     *::after {
         scroll-behavior: auto !important;
         transition-duration: 0.01ms !important;
+    }
+}
+
+
+@media print {
+    /* Ocultamos la cabecera general de la Wiki */
+    header.cabecera,
+    
+    /* Ocultamos el menú de navegación lateral */
+    nav.columna-navegacion,
+    
+    /* Ocultamos los botones de navegación o de imprimir para que no salgan en el papel */
+    .btn, 
+    a.btn {
+        display: none !important;
+    }
+
+    /* Hacemos que el panel de contenido principal ocupe el 100% del ancho de la hoja */
+    main.columna-contenido,
+    .columna-contenido.col-lg-9 {
+        width: 100% !important;
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+    }
+
+    /* Limpiamos sombras y fondos pesados de las tarjetas para que la impresión salga nítida */
+    .card {
+        border: 1px solid #dee2e6 !important;
+        box-shadow: none !important;
     }
 }
